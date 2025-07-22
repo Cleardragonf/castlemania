@@ -9,13 +9,10 @@ interface LootOption {
 }
 
 const lootOptions: LootOption[] = [
-  { name: 'Warrior Pack', resources: { loot: {coins: 100, swords: 2, shields: 1 }, people: {citizen: 1, Warrior: 1} }},
-  { name: 'Builder Pack', resources: { loot: {coins: 75, wood: 100, stone: 50 }, people: {citizen: 1, Builder: 1} }},
-  { name: 'Explorer Pack', resources: { loot: {coins: 90, maps: 1, boots: 1 }, people: {citizen: 1, Explorer: 1} }},
-  { name: 'Farmer Pack', resources: { loot: {coins: 50, food: 5 }, people: {citizen: 1, farmer: 1} }},
-  { name: 'Miner Pack', resources: { loot: {coins: 60, ore: 100 }, people: {citizen: 1, miner: 1} }},
-  { name: 'Blacksmith Pack', resources: { loot: {coins: 80, tools: 5 }, people: {citizen: 1, blacksmith: 1} }},
-  { name: 'Merchant Pack', resources: { loot: {coins: 120, maps: 2 }, people: {citizen: 1, merchant: 1} }},
+  {name: "Lords Package", resources: { loot: { coins: 8, food: 2 }, people: {citizen: 1, farmer: 2} }},
+  {name: "Merchants Package", resources: { loot: { coins: 4, food: 4 }, people: {citizen: 2, merchant: 1} }},
+  {name: "Warlords Package", resources: { loot: { coins: 2, food: 6 }, people: {citizen: 2, Warrior: 2} }},
+  {name: "Commoners Package", resources: { loot: { coins: 1, food: 8 }, people: {citizen: 4, } }},
 ];
 
 interface Props {
