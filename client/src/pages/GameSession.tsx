@@ -7,7 +7,7 @@ const defaultLoot: Loot = {
   coins: 100,
   swords: 1,
   shields: 1,
-  food: 5, // make sure food is present
+  food: 5,
 };
 
 const defaultResources: Resources = {
@@ -21,6 +21,7 @@ export const GameSession: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [history, setHistory] = useState<string[]>([]);
+  const [showTechModal, setShowTechModal] = useState(false); // ← NEW
 
   const storedLoot = localStorage.getItem('startingLoot');
   let parsedLoot: Resources;
@@ -112,6 +113,10 @@ export const GameSession: React.FC = () => {
       <div style={{ marginTop: '1rem' }}>
         <button onClick={handleNextDay} disabled={gameOver}>Next Day</button>
 
+        <button onClick={() => setShowTechModal(true)} style={{ marginLeft: '1rem' }}>
+          Technology
+        </button>
+
         {loot.people?.citizen && loot.people.citizen > 0 && !gameOver && (
           <div style={{ marginTop: '1rem' }}>
             <label htmlFor="professionSelect">Convert a Citizen to: </label>
@@ -134,6 +139,7 @@ export const GameSession: React.FC = () => {
         )}
       </div>
 
+      {/* GAME OVER MODAL */}
       {gameOver && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-[400px]">
@@ -153,6 +159,33 @@ export const GameSession: React.FC = () => {
               onClick={() => window.location.reload()}
             >
               Restart Game
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* TECHNOLOGY MODAL */}
+      {showTechModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-[600px]">
+            <h2 className="text-2xl font-bold mb-4 text-center">Technology Tree</h2>
+            <p className="text-sm text-gray-600 text-center mb-4">This will eventually show all unlockable technologies and upgrades.</p>
+
+            {/* Placeholder for tech tree */}
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="p-2 border rounded shadow text-center">🔓 Agriculture</div>
+              <div className="p-2 border rounded shadow text-center">🔒 Metallurgy</div>
+              <div className="p-2 border rounded shadow text-center">🔒 Writing</div>
+              <div className="p-2 border rounded shadow text-center">🔒 Animal Domestication</div>
+              <div className="p-2 border rounded shadow text-center">🔒 Masonry</div>
+              <div className="p-2 border rounded shadow text-center">🔒 Navigation</div>
+            </div>
+
+            <button
+              className="mt-6 w-full bg-gray-700 text-white py-2 rounded hover:bg-gray-800"
+              onClick={() => setShowTechModal(false)}
+            >
+              Close
             </button>
           </div>
         </div>
