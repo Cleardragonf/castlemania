@@ -23,9 +23,7 @@ export const professionList = [
   'miners',
   'blacksmiths',
   'carpenters',
-  'hunters',
   'merchants',
-  'soldiers',
   'scholars',
   'artisans',
 ] as const;

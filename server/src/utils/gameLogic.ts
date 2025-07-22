@@ -43,6 +43,7 @@ export function applyProfessionLogic(day: number, resources: Resources): Resourc
     farmer: (count) => ({ food: count * 2 }),
     miner: (count) => ({ ore: (updatedLoot.ore ?? 0) + count }),
     taxCollector: (count) => ({ coins: (updatedLoot.coins ?? 0) + count * 3 }),
+    scholar: (count) => ({ knowledge: count }),
     blacksmith: (count) => ({ tools: (updatedLoot.tools ?? 0) + count }),
     explorer: (count) => ({ maps: count }),
   };
@@ -75,7 +76,9 @@ export function applyDailyLogic(day: number, resources: Resources): Resources {
   const foodAvailable = loot.food ?? 0;
 
   const foodConsumptionPerProfession: { [profession: string]: number } = {
-    warrior: 2,
+    warrior: 3,
+    scholar: 5,
+    taxCollector: 2,
   };
 
   let totalFoodNeeded = 0;
