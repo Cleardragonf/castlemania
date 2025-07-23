@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {GameSetupModal} from '../components/GameSetupModal';
+import {GameSetupModal} from '../modals/GameSetupModal';
 import { Loot, Resources } from '../types';
+import { Button } from '@mui/material';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -25,10 +26,13 @@ export const HomePage: React.FC = () => {
   return (
     <div style={{ padding: '2rem' }}>
       <h1>Welcome Back</h1>
-      <button onClick={handleContinue} style={{ marginRight: '1rem' }}>
+
+      <Button onClick={handleContinue} variant="contained" color="primary" style={{ marginRight: '1rem' }}>
         Continue Game
-      </button>
-      <button onClick={handleStartNew}>Start New Game</button>
+      </Button>
+      <Button onClick={handleStartNew} variant="contained" color="primary">
+        Start New Game
+      </Button>
 
       {showModal && (
         <GameSetupModal onLootSelected={handleLootSelected} onClose={() => setShowModal(false)} />

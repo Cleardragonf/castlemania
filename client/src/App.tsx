@@ -3,6 +3,7 @@ import {LoginPage} from './pages/LoginPage';
 import {GameSession} from './pages/GameSession';
 import {HomePage} from './pages/HomePage';
 import { ResourceProvider } from './contexts/ResourceContext';
+import { HistoryProvider } from './contexts/HistoryContext';
 
 const App = () => (
   <Router>
@@ -11,7 +12,9 @@ const App = () => (
       <Route path="/home" element={<HomePage />} />
       <Route path="/game" element={
         <ResourceProvider>
-          <GameSession />
+          <HistoryProvider>
+            <GameSession />
+          </HistoryProvider>
         </ResourceProvider>
       } />
     </Routes>
