@@ -12,7 +12,6 @@ export interface Loot {
   [key: string]: number | undefined; // 👈 this line allows dynamic access
 
 }
-// types.ts
 
 export const professionList = [
   'Warrior',
