@@ -2,52 +2,51 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { People } from '../types';
 import { advanceDay } from '../api/gameApi';
-import { professionList, Profession } from '../types';
+import { professionList, Profession, ProfessionDetails } from '../types';
 import { TechnologyModal } from '../modals/TechnologyModal';
 import { useResourceContext } from '../contexts/ResourceContext';
-import { GameOverModal } from '../modals/GameOverModal';  // <-- import here
+import { GameOverModal } from '../modals/GameOverModal';
 import { Box, Typography, Button, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import { useHistoryContext } from '../contexts/HistoryContext';
 
 export const GameSession: React.FC = () => {
   const navigate = useNavigate();
 
+  // <-- Fix: if professionList is array of ProfessionDetails, selectedProfession is a string matching `name`
   const [day, setDay] = useState(1);
-  const [selectedProfession, setSelectedProfession] = useState<Profession>('farmer');
+  const [selectedProfession, setSelectedProfession] = useState<string>('farmer');
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
-  const { history, addEntry } = useHistoryContext();
   const [techOpen, setTechOpen] = useState(false);
 
   const { resources: loot, setResources: setLoot } = useResourceContext();
+  const { history, addEntry } = useHistoryContext();
 
   useEffect(() => {
-    const entry = `Day ${day}: Food=${loot.loot?.food ?? 0}, People=${Object.values(loot.people ?? {}).reduce((sum, val) => sum + val, 0)}`;
-    
-    // Only add if it's different from last entry to prevent duplicates from double effect calls
+const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?? 0) + (val ?? 0), 0);
+
+    const entry = `Day ${day}: Food=${loot.loot?.food ?? 0}, People=${totalPeople}`;
+
     if (history[history.length - 1] !== entry) {
       addEntry(entry);
     }
-    
-    setScore(day * 10);
+    handleScoreCalculation();
   }, [day, loot, addEntry, history]);
-
 
   const handleNextDay = async () => {
     try {
       const { day: newDay, resources: newRes } = await advanceDay(day, loot);
 
-      const totalPeople = newRes.people
-        ? Object.values(newRes.people).reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0)
-        : 0;
+      // Fix: Safer reduce with default 0
+      const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?? 0) + (val ?? 0), 0);
       const food = newRes.loot?.food ?? 0;
 
       setDay(newDay);
       setLoot(newRes);
 
-      if (food <= 0 && totalPeople <= 0) {
-        setGameOver(true);
-      }
+    if ((totalPeople ?? 0) <= 0) {
+      setGameOver(true);
+    }
     } catch (err) {
       console.error(err);
     }
@@ -56,6 +55,7 @@ export const GameSession: React.FC = () => {
   const handleConvert = () => {
     if (!loot.people || (loot.people.citizen ?? 0) < 1) return;
 
+    // Fix: cast selectedProfession string to keyof People
     const prof = selectedProfession as keyof People;
 
     const updatedPeople: People = {
@@ -71,6 +71,26 @@ export const GameSession: React.FC = () => {
     const updatedLoot = { ...loot, people: updatedPeople };
     setLoot(updatedLoot);
   };
+
+  const professionValueMap: Record<string, number> = professionList.reduce((map, prof) => {
+    map[prof.name.toLowerCase()] = prof.value;
+    return map;
+  }, {} as Record<string, number>);
+
+  const handleScoreCalculation = () => {
+    const weightedTotalPeople = Object.entries(loot.people ?? {}).reduce((sum, [prof, count]) => {
+      const profValue = professionValueMap[prof.toLowerCase()] ?? 1; // fallback to 1 if unknown
+      return sum + (typeof count === 'number' ? count * profValue : 0);
+    }, 0);
+
+    const food = loot.loot?.food ?? 0;
+
+    const newScore = weightedTotalPeople * food + day * 10;
+
+    setScore(newScore);
+  };
+
+
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -122,11 +142,12 @@ export const GameSession: React.FC = () => {
               id="professionSelect"
               value={selectedProfession}
               label="Convert a Citizen to"
-              onChange={(e) => setSelectedProfession(e.target.value as Profession)}
+              onChange={(e) => setSelectedProfession(e.target.value)}
             >
-              {professionList.map((prof) => (
-                <MenuItem key={prof} value={prof}>
-                  {prof}
+              {/* Fix: use prof.name for key and value */}
+              {professionList.map((prof: ProfessionDetails) => (
+                <MenuItem key={prof.name} value={prof.name}>
+                  {prof.name}
                 </MenuItem>
               ))}
             </Select>
@@ -147,4 +168,3 @@ export const GameSession: React.FC = () => {
     </div>
   );
 };
-

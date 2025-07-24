@@ -13,22 +13,28 @@ export interface Loot {
 
 }
 
-export const professionList = [
-  'Warrior',
-  'Builder',
-  'Explorer',
-  'farmer',
-  'miner',
-  'blacksmith',
-  'carpenter',
-  'hunter',
-  'merchant',
-  'soldier',
-  'scholar',
-  'artisan',
-] as const;
+export interface ProfessionDetails {
+  name: string;
+  cost: number;
+  value: number;
+}
 
-export type Profession = typeof professionList[number];
+export const professionList: ProfessionDetails[] = [
+  { name: 'Warrior', cost: 2, value: 4 },
+  { name: 'Builder', cost: 1, value: 3 },
+  { name: 'Explorer', cost: 1, value: 3 },
+  { name: 'farmer', cost: 1, value: 2 },
+  { name: 'miner', cost: 2, value: 3 },
+  { name: 'blacksmith', cost: 3, value: 5 },
+  { name: 'carpenter', cost: 2, value: 3 },
+  { name: 'hunter', cost: 1, value: 3 },
+  { name: 'merchant', cost: 2, value: 4 },
+  { name: 'soldier', cost: 2, value: 4 },
+  { name: 'scholar', cost: 3, value: 5 },
+  { name: 'artisan', cost: 2, value: 4 },
+];
+
+export type Profession = typeof professionList[number]['name'];
 
 type ProfessionMap = {
   [key in Profession]?: number;

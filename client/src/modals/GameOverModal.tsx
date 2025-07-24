@@ -25,7 +25,7 @@ const style = {
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({ open, day, score, history }) => {
   const navigate = useNavigate();
-  console.log(history);
+  console.log(score, 'GameOverModal score');
 
   return (
     <Modal
