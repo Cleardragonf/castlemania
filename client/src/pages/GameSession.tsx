@@ -8,6 +8,7 @@ import { useResourceContext } from '../contexts/ResourceContext';
 import { GameOverModal } from '../modals/GameOverModal';
 import { Box, Typography, Button, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import { useHistoryContext } from '../contexts/HistoryContext';
+import { useTechnologyContext } from '../contexts/TechnologyContext';
 
 export const GameSession: React.FC = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export const GameSession: React.FC = () => {
 
   const { resources: loot, setResources: setLoot } = useResourceContext();
   const { history, addEntry } = useHistoryContext();
+  const { resetTechTree } = useTechnologyContext();
 
   useEffect(() => {
 const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?? 0) + (val ?? 0), 0);
@@ -33,6 +35,8 @@ const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?
     }
     handleScoreCalculation();
   }, [day, loot, addEntry, history]);
+
+
 
   const handleNextDay = async () => {
     try {
@@ -46,12 +50,17 @@ const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?
       setLoot(newRes);
 
     if ((totalPeople ?? 0) <= 0) {
-      setGameOver(true);
+      handleGameover();      
     }
     } catch (err) {
       console.error(err);
     }
   };
+
+const handleGameover = () => {
+  setGameOver(true);
+  resetTechTree(); // Reset tech tree on game over
+};
 
 const handleConvert = async () => {
   if (!loot.people || (loot.people.citizen ?? 0) < 1) return;
@@ -141,7 +150,7 @@ const handleConvert = async () => {
       </div>
 
       <Box mt={2} mb={2} gap={2} display={'flex'} flexDirection="row">
-        <Button variant="outlined" onClick={() => setGameOver(true)}>
+        <Button variant="outlined" onClick={() => handleGameover()}>
           Quit
         </Button>
         <Button variant="contained" onClick={handleNextDay} disabled={gameOver}>

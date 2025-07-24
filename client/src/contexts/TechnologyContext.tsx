@@ -4,6 +4,7 @@ import { TechNode, technologyTree as defaultTechTree } from '../types/techTreeDa
 interface TechnologyContextType {
   techTree: TechNode[];
   setTechTree: (tree: TechNode[]) => void;
+  resetTechTree: () => void;
 }
 
 const TechnologyContext = createContext<TechnologyContextType | undefined>(undefined);
@@ -19,8 +20,14 @@ export const TechnologyProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     localStorage.setItem('technologyTree', JSON.stringify(tree));
   };
 
+const resetTechTree = () => {
+  const clearedTree = defaultTechTree.map(node => ({ ...node, unlocked: false }));
+  setTechTreeState(clearedTree);
+  localStorage.removeItem('technologyTree'); // optional
+};
+
   return (
-    <TechnologyContext.Provider value={{ techTree, setTechTree }}>
+    <TechnologyContext.Provider value={{ techTree, setTechTree, resetTechTree }}>
       {children}
     </TechnologyContext.Provider>
   );
