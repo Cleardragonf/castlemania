@@ -8,6 +8,7 @@ interface GameOverModalProps {
   score: number;
   history: string[];
   onClose?: () => void;
+  highScore?: number; // Optional prop for high score
 }
 const style = {
   position: 'absolute' as const,
@@ -23,9 +24,8 @@ const style = {
   overflowY: 'auto',
 };
 
-export const GameOverModal: React.FC<GameOverModalProps> = ({ open, day, score, history }) => {
+export const GameOverModal: React.FC<GameOverModalProps> = ({ open, day, score, history, highScore }) => {
   const navigate = useNavigate();
-  console.log(score, 'GameOverModal score');
 
   return (
     <Modal
@@ -44,6 +44,9 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({ open, day, score, 
         </Typography>
         <Typography textAlign="center" mb={4}>
           Score: <strong>{score}</strong>
+        </Typography>
+        <Typography textAlign="center" mb={4}>
+          High Score: <strong>{highScore}</strong>
         </Typography>
 
         <Typography variant="subtitle1" fontWeight="bold" gutterBottom>

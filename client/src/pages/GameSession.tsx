@@ -18,6 +18,7 @@ export const GameSession: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [techOpen, setTechOpen] = useState(false);
+  const [highScore, setHighScore] = useState(0);
 
   const { resources: loot, setResources: setLoot } = useResourceContext();
   const { history, addEntry } = useHistoryContext();
@@ -52,25 +53,37 @@ const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?
     }
   };
 
-  const handleConvert = () => {
-    if (!loot.people || (loot.people.citizen ?? 0) < 1) return;
+const handleConvert = async () => {
+  if (!loot.people || (loot.people.citizen ?? 0) < 1) return;
 
-    // Fix: cast selectedProfession string to keyof People
-    const prof = selectedProfession as keyof People;
+  const prof = selectedProfession as Profession;
+  const professionDetails = professionList.find(p => p.name === prof);
+  if (!professionDetails) return;
 
-    const updatedPeople: People = {
-      ...loot.people,
-      citizen: (loot.people.citizen ?? 1) - 1,
-      [prof]: (loot.people[prof] ?? 0) + 1,
-    };
+  const currentCoins = loot.loot?.coins ?? 0;
+  if (currentCoins < professionDetails.cost) return; // safety guard
 
-    if (updatedPeople.citizen === 0) {
-      delete updatedPeople.citizen;
-    }
-
-    const updatedLoot = { ...loot, people: updatedPeople };
-    setLoot(updatedLoot);
+  const updatedPeople: People = {
+    ...loot.people,
+    citizen: (loot.people.citizen ?? 1) - 1,
+    [prof]: (loot.people[prof] ?? 0) + 1,
   };
+
+  if (updatedPeople.citizen === 0) {
+    delete updatedPeople.citizen;
+  }
+
+  const updatedLoot = {
+    ...loot,
+    loot: {
+      ...loot.loot,
+      coins: currentCoins - professionDetails.cost,
+    },
+    people: updatedPeople,
+  };
+
+  setLoot(updatedLoot);
+};
 
   const professionValueMap: Record<string, number> = professionList.reduce((map, prof) => {
     map[prof.name.toLowerCase()] = prof.value;
@@ -86,6 +99,9 @@ const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?
     const food = loot.loot?.food ?? 0;
 
     const newScore = weightedTotalPeople * food + day * 10;
+    if (newScore >= highScore) {
+      setHighScore(newScore);
+    }
 
     setScore(newScore);
   };
@@ -124,12 +140,15 @@ const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?
         )}
       </div>
 
-      <Box mt={2} mb={2}>
-        <Button variant="outlined" onClick={() => navigate('/home')} sx={{ mr: 2 }}>
+      <Box mt={2} mb={2} gap={2} display={'flex'} flexDirection="row">
+        <Button variant="outlined" onClick={() => setGameOver(true)}>
           Quit
         </Button>
         <Button variant="contained" onClick={handleNextDay} disabled={gameOver}>
           Next Day
+        </Button>
+        <Button variant="outlined" onClick={() => setTechOpen(true)}>
+          Technology
         </Button>
       </Box>
 
@@ -144,26 +163,30 @@ const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?
               label="Convert a Citizen to"
               onChange={(e) => setSelectedProfession(e.target.value)}
             >
-              {/* Fix: use prof.name for key and value */}
-              {professionList.map((prof: ProfessionDetails) => (
-                <MenuItem key={prof.name} value={prof.name}>
-                  {prof.name}
-                </MenuItem>
-              ))}
+              {professionList.map((prof: ProfessionDetails) => {
+                const affordable = (loot.loot?.coins ?? 0) >= prof.cost;
+
+                return (
+                  <MenuItem
+                    key={prof.name}
+                    value={prof.name}
+                    disabled={!affordable}
+                  >
+                    {prof.name} (${prof.cost}) {!affordable && '- Not enough coins'}
+                  </MenuItem>
+                );
+              })}
             </Select>
           </FormControl>
-
           <Button variant="contained" onClick={handleConvert}>
             Convert
-          </Button>
-
-          <Button variant="outlined" onClick={() => setTechOpen(true)}>
-            Technology
           </Button>
         </Box>
       )}
 
-      <GameOverModal open={gameOver} day={day} score={score} history={history} />
+      {}
+
+      <GameOverModal open={gameOver} day={day} score={score} history={history} highScore={highScore} />
       <TechnologyModal open={techOpen} onClose={() => setTechOpen(false)} />
     </div>
   );
