@@ -1,11 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "rootDir": "..",              // project root, one level above `server`
+    "outDir": "../dist/server",  // output to dist/server
+    "baseUrl": "..",
+    "paths": {
+      "@shared/*": ["shared/*"]
+    },
     "module": "CommonJS",
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "target": "ES2020",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true
-  }
+  },
+  "include": ["src", "../shared"],
+  "exclude": ["../dist/server"]
 }

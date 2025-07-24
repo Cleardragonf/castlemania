@@ -1,4 +1,4 @@
-import { Resources, People } from '../types';
+import { Resources, People } from '@shared/index';
 
 export function applyWeeklyLogic(day: number, currentResources: Resources): Resources {
   // Ensure people is at least an empty object
@@ -11,10 +11,11 @@ export function applyWeeklyLogic(day: number, currentResources: Resources): Reso
   };
 
   // Calculate total citizens (values in people are numbers)
-  const totalCitizens = Object.values(people).reduce((sum, count) => {
-    // TypeScript knows sum and count are numbers because People is { [key: string]: number }
-    return sum + count;
+  const totalCitizens = Object.values(people).reduce((sum: number, count: number | undefined) => {
+    return sum + (count ?? 0);
   }, 0);
+
+
 
   // Copy currentResources to new object, updating loot.coins if it's the 7th day
   const updated: Resources = {
@@ -22,7 +23,7 @@ export function applyWeeklyLogic(day: number, currentResources: Resources): Reso
     people,
     loot: {
       ...currentResources.loot,
-      coins: day % 7 === 0 ? loot.coins + totalCitizens : loot.coins,
+        coins: day % 7 === 0 ? loot.coins + (totalCitizens as number) : loot.coins,
     },
   };
   return updated;
@@ -50,7 +51,9 @@ export function applyProfessionLogic(day: number, resources: Resources): Resourc
   console.log(updatedLoot.maps, updatedLoot.food, updatedLoot.ore, updatedLoot.tools);
   console.log('People object:', people);
   // Loop over each profession in people
-  for (const [profession, count] of Object.entries(people)) {
+for (const [profession, count] of Object.entries(people)) {
+  if (typeof count !== 'number') continue; // ⛑️ Safety check
+
   const rewardFn = professionLootMap[profession.toLowerCase()];
   if (rewardFn) {
     const rewards = rewardFn(count);
@@ -70,6 +73,12 @@ export function applyProfessionLogic(day: number, resources: Resources): Resourc
   };
 }
 
+function isCountDefinedAndPositive(entry: [string, number | undefined]): entry is [string, number] {
+  const count = entry[1];
+  return typeof count === 'number' && count > 0;
+}
+
+
 export function applyDailyLogic(day: number, resources: Resources): Resources {
   const people: People = { ...resources.people };
   const loot = resources.loot ?? {};
@@ -83,14 +92,16 @@ export function applyDailyLogic(day: number, resources: Resources): Resources {
 
   let totalFoodNeeded = 0;
   for (const [profession, count] of Object.entries(people)) {
+    if (typeof count !== 'number') continue; // Add this line
     totalFoodNeeded += count * (foodConsumptionPerProfession[profession.toLowerCase()] ?? 1);
   }
+
 
   let foodAfterConsumption = foodAvailable - totalFoodNeeded;
   let updatedPeople = { ...people };
 
   while (foodAfterConsumption < 0 && Object.keys(updatedPeople).length > 0) {
-    const professionsWithPeople = Object.entries(updatedPeople).filter(([, count]) => count > 0);
+    const professionsWithPeople = Object.entries(updatedPeople).filter(isCountDefinedAndPositive);
     if (professionsWithPeople.length === 0) break;
 
     const randomIndex = Math.floor(Math.random() * professionsWithPeople.length);

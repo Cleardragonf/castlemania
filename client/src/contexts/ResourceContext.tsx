@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Resources } from '../types';
+import { Resources } from '@shared/index';
 
 interface ResourceContextType {
   resources: Resources;

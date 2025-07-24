@@ -13,7 +13,7 @@ import {
   Tab,
 } from '@mui/material';
 import { useTechnologyContext } from '../contexts/TechnologyContext';
-import { TechNode } from '../types/techTreeData';
+import { TechNode } from '../../../shared/techTreeData';
 
 interface TechnologyModalProps {
   open: boolean;

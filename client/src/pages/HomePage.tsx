@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {GameSetupModal} from '../modals/GameSetupModal';
-import { Loot, Resources } from '../types';
+import { Loot, Resources } from '@shared/index';
 import { Button } from '@mui/material';
 
 export const HomePage: React.FC = () => {

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { People } from '../types';
 import { advanceDay } from '../api/gameApi';
-import { professionList, Profession, ProfessionDetails } from '../types';
+import { professionList, Profession, ProfessionDetails, People } from '@shared/index';
 import { TechnologyModal } from '../modals/TechnologyModal';
 import { useResourceContext } from '../contexts/ResourceContext';
 import { GameOverModal } from '../modals/GameOverModal';

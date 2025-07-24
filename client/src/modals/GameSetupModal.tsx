@@ -1,7 +1,7 @@
 // client/src/components/GameSetupModal.tsx
 
 import React from 'react';
-import { Resources } from '../types';
+import { Resources } from '@shared/index';
 
 interface LootOption {
   name: string;

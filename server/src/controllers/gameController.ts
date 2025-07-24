@@ -1,7 +1,7 @@
 // server/src/controllers/gameController.ts
 import { Request, Response } from 'express';
 import { applyWeeklyLogic, applyProfessionLogic, applyDailyLogic } from '../utils/gameLogic';
-import { Resources } from '../types';
+import { Resources } from '@shared/index';
 
 export async function nextDay(req: Request, res: Response) {
   const { day, resources }: { day: number; resources: Resources } = req.body;

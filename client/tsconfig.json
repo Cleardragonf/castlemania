@@ -6,6 +6,11 @@
       "dom.iterable",
       "esnext"
     ],
+    "paths": {
+      "@shared/*": [
+        "../shared/*"
+      ]
+    },
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -22,5 +27,5 @@
   },
   "include": [
     "src"
-  ]
+, "src/index.tsx"  ]
 }
