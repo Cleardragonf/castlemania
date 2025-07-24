@@ -3,7 +3,7 @@ import { Resources } from '@shared/index';
 
 interface ResourceContextType {
   resources: Resources;
-  setResources: (value: Resources) => void;
+  setResources: React.Dispatch<React.SetStateAction<Resources>>;
 }
 
 const defaultResources: Resources = {
@@ -24,10 +24,14 @@ export const ResourceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return stored ? JSON.parse(stored) : defaultResources;
   });
 
-  const setResources = (value: Resources) => {
-    setResourcesState(value);
-    localStorage.setItem('startingLoot', JSON.stringify(value));
-  };
+const setResources = (value: Resources | ((prev: Resources) => Resources)) => {
+  setResourcesState((prev) => {
+    const newValue = typeof value === 'function' ? value(prev) : value;
+    localStorage.setItem('startingLoot', JSON.stringify(newValue));
+    return newValue;
+  });
+};
+  
 
   return (
     <ResourceContext.Provider value={{ resources, setResources }}>

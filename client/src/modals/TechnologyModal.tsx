@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { useTechnologyContext } from '../contexts/TechnologyContext';
 import { TechNode } from '../../../shared/techTreeData';
+import { useResourceContext } from '../contexts/ResourceContext';
 
 interface TechnologyModalProps {
   open: boolean;
@@ -23,19 +24,43 @@ interface TechnologyModalProps {
 export const TechnologyModal: React.FC<TechnologyModalProps> = ({ open, onClose }) => {
   const { techTree, setTechTree } = useTechnologyContext();
   const [selectedCategory, setSelectedCategory] = useState(0);
-
+  const { resources, setResources } = useResourceContext();
+  const safeResources = resources.loot?.books ?? 0;
+  
   const categories = Array.from(new Set(techTree.map((node) => node.category)));
 
   const canUnlock = (node: TechNode, tree: TechNode[]) =>
     node.prerequisites.every((pre) => tree.find((n) => n.id === pre)?.unlocked);
 
-  const handleUnlock = (id: string) => {
-    setTechTree(
-      techTree.map((node) =>
-        node.id === id && canUnlock(node, techTree) ? { ...node, unlocked: true } : node
-      )
-    );
-  };
+const handleUnlock = (id: string) => {
+  const node = techTree.find((n) => n.id === id);
+  if (!node) return;
+
+  const cost = node.cost ?? 0;
+  const currentBooks = resources.loot?.books ?? 0;
+
+  // Not enough books OR prerequisites not met
+  if (currentBooks < cost || !canUnlock(node, techTree)) {
+    return; // do nothing
+  }
+
+  // Deduct books
+  setResources((prev) => ({
+    ...prev,
+    loot: {
+      ...prev.loot,
+      books: Math.max(0, (prev.loot?.books ?? 0) - cost),
+    },
+  }));
+
+  // Unlock the node
+  setTechTree(
+    techTree.map((n) =>
+      n.id === id ? { ...n, unlocked: true } : n
+    )
+  );
+};
+
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setSelectedCategory(newValue);
@@ -103,7 +128,9 @@ export const TechnologyModal: React.FC<TechnologyModalProps> = ({ open, onClose 
                     border: '2px solid #999',
                     transition: 'all 0.3s ease-in-out',
                     width: 180,
-                    color: !unlocked && (!isInCategory || !unlockable) ? '#999' : 'inherit',
+                    color: !unlocked && (!isInCategory || !unlockable)
+                      ? '#999'
+                      : 'inherit',
                     opacity: isInCategory ? 1 : 0.4,
                   }}
                   onClick={() => {
@@ -112,7 +139,20 @@ export const TechnologyModal: React.FC<TechnologyModalProps> = ({ open, onClose 
                 >
                   <Typography fontWeight="bold">{node.name}</Typography>
                   <Typography variant="body2">{node.description}</Typography>
-                  <Typography variant="caption">Cost: {node.cost}</Typography>
+                  <Typography
+  variant="caption"
+  sx={{
+    color:
+      !unlocked &&
+      unlockable &&
+      safeResources < (node.cost ?? 0)
+        ? 'red'
+        : 'inherit',
+  }}
+>
+  Cost: {node.cost}
+</Typography>
+
                 </Paper>
               </Box>
             );

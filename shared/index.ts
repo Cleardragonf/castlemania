@@ -1,5 +1,6 @@
 export interface Loot {
   coins?: number;
+  books?: number;
   swords?: number;
   shields?: number;
   wood?: number;

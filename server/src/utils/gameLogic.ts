@@ -44,7 +44,7 @@ export function applyProfessionLogic(day: number, resources: Resources): Resourc
     farmer: (count) => ({ food: count * 2 }),
     miner: (count) => ({ ore: (updatedLoot.ore ?? 0) + count }),
     taxCollector: (count) => ({ coins: (updatedLoot.coins ?? 0) + count * 3 }),
-    scholar: (count) => ({ knowledge: count }),
+    scholar: (count) => ({ books: count }),
     blacksmith: (count) => ({ tools: (updatedLoot.tools ?? 0) + count }),
     explorer: (count) => ({ maps: count }),
   };
