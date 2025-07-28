@@ -1,6 +1,9 @@
+import { getAllTechnologyBenefits } from '@shared/global';
 import { Resources, People } from '@shared/index';
+import { foodConsumptionPerProfession, professionLootMap } from '@shared/professions';
+import { TechNode } from '@shared/techTreeData';
 
-export function applyWeeklyLogic(day: number, currentResources: Resources): Resources {
+export function applyWeeklyLogic(day: number, currentResources: Resources) {
   // Ensure people is at least an empty object
   const people: People = currentResources.people ?? {};
 
@@ -29,42 +32,26 @@ export function applyWeeklyLogic(day: number, currentResources: Resources): Reso
   return updated;
 }
 
-export function applyProfessionLogic(day: number, resources: Resources): Resources {
+export function applyProfessionLogic(day: number, resources: Resources, tech: TechNode[]) {
   const people: People = resources.people ?? {};
   const currentLoot = resources.loot ?? {};
-
-  // Create a copy of loot that we'll mutate
   const updatedLoot = { ...currentLoot };
 
-  // Define logic per profession
+  const benefits = getAllTechnologyBenefits(tech); // 🧠 pass this into each reward function
 
-  const professionLootMap: {
-    [profession: string]: (count: number) => Partial<typeof updatedLoot>;
-  } = {
-    farmer: (count) => ({ food: count * 2 }),
-    miner: (count) => ({ ore: (updatedLoot.ore ?? 0) + count }),
-    taxCollector: (count) => ({ coins: (updatedLoot.coins ?? 0) + count * 3 }),
-    scholar: (count) => ({ books: count }),
-    blacksmith: (count) => ({ tools: (updatedLoot.tools ?? 0) + count }),
-    explorer: (count) => ({ maps: count }),
-  };
-  console.log(updatedLoot.maps, updatedLoot.food, updatedLoot.ore, updatedLoot.tools);
-  console.log('People object:', people);
-  // Loop over each profession in people
-for (const [profession, count] of Object.entries(people)) {
-  if (typeof count !== 'number') continue; // ⛑️ Safety check
+  for (const [profession, count] of Object.entries(people)) {
+    if (typeof count !== 'number') continue;
 
-  const rewardFn = professionLootMap[profession.toLowerCase()];
-  if (rewardFn) {
-    const rewards = rewardFn(count);
-    for (const [lootType, amount] of Object.entries(rewards)) {
-      if (typeof amount === 'number') {
-        updatedLoot[lootType] = (updatedLoot[lootType] ?? 0) + amount;
+    const rewardFn = professionLootMap[profession.toLowerCase()];
+    if (rewardFn) {
+      const rewards = rewardFn(count, benefits); // ✅ use benefits
+      for (const [lootType, amount] of Object.entries(rewards)) {
+        if (typeof amount === 'number') {
+          updatedLoot[lootType] = (updatedLoot[lootType] ?? 0) + amount;
+        }
       }
     }
   }
-}
-
 
   return {
     ...resources,
@@ -79,16 +66,12 @@ function isCountDefinedAndPositive(entry: [string, number | undefined]): entry i
 }
 
 
-export function applyDailyLogic(day: number, resources: Resources): Resources {
+export function applyDailyLogic(day: number, resources: Resources, tech: TechNode[]){
   const people: People = { ...resources.people };
   const loot = resources.loot ?? {};
   const foodAvailable = loot.food ?? 0;
 
-  const foodConsumptionPerProfession: { [profession: string]: number } = {
-    warrior: 3,
-    scholar: 5,
-    taxCollector: 2,
-  };
+  console.log("Testing Tech Tree:", tech);
 
   let totalFoodNeeded = 0;
   for (const [profession, count] of Object.entries(people)) {

@@ -22,7 +22,7 @@ export const GameSession: React.FC = () => {
 
   const { resources: loot, setResources: setLoot } = useResourceContext();
   const { history, addEntry } = useHistoryContext();
-  const { resetTechTree } = useTechnologyContext();
+  const { techTree, resetTechTree } = useTechnologyContext();
 
   useEffect(() => {
 const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?? 0) + (val ?? 0), 0);
@@ -35,11 +35,11 @@ const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?
     handleScoreCalculation();
   }, [day, loot, addEntry, history]);
 
-
+  
 
   const handleNextDay = async () => {
     try {
-      const { day: newDay, resources: newRes } = await advanceDay(day, loot);
+      const { day: newDay, resources: newRes } = await advanceDay(day, loot, techTree);
 
       // Fix: Safer reduce with default 0
       const totalPeople = Object.values(loot.people ?? {}).reduce((sum, val) => (sum ?? 0) + (val ?? 0), 0);
@@ -195,7 +195,7 @@ const handleConvert = async () => {
       {}
 
       <GameOverModal open={gameOver} day={day} score={score} history={history} highScore={highScore} />
-      <TechnologyModal open={techOpen} onClose={() => setTechOpen(false)} />
+      <TechnologyModal open={techOpen} onClose={(() => setTechOpen(false))} />
     </div>
   );
 };
