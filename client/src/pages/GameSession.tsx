@@ -93,7 +93,23 @@ const handleConvert = async () => {
   setLoot(updatedLoot);
 };
 
-  const professionValueMap: Record<string, number> = professionList.reduce((map, prof) => {
+const handleBreeding = () => {
+  if(loot.people?.citizen && loot.people.citizen >= 2) {
+    const updatedPeople: People = {
+      ...loot.people,
+      citizen: (loot.people.citizen ?? 0) + 1, // Add one citizen
+    };
+
+    const updatedLoot = {
+      ...loot,
+      people: updatedPeople,
+    };
+
+    setLoot(updatedLoot);
+  }
+}
+
+const professionValueMap: Record<string, number> = professionList.reduce((map, prof) => {
     map[prof.name.toLowerCase()] = prof.value;
     return map;
   }, {} as Record<string, number>);
@@ -186,9 +202,19 @@ const handleConvert = async () => {
               })}
             </Select>
           </FormControl>
-          <Button variant="contained" onClick={handleConvert}>
-            Convert
-          </Button>
+          <Box>
+            <Button variant="contained" onClick={handleConvert}>
+              Convert
+            </Button>
+            <Typography variant="body2" color="textSecondary">
+              {loot.people.citizen} Citizens available
+            </Typography>
+            {loot.people?.citizen && loot.people.citizen / 2 && loot.loot?.food && loot.loot.food >= 5 && (
+              <Button variant="outlined" onClick={handleBreeding} sx={{ ml: 2 }}>
+                Breed Citizens
+              </Button>
+            )}
+          </Box>
         </Box>
       )}
 
